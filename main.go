@@ -15,5 +15,5 @@ func main() {
 	//routes
 	routes.CitationRoute(router)
 
-	router.Run("localhost:8080")
+	router.Run(":" + configs.EnvPORT())
 }
