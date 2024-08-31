@@ -147,7 +147,7 @@ func GetPagedCitations() gin.HandlerFunc {
 
 		filter := bson.D{}
 
-		opts := options.Find().SetSort(bson.D{{Key: "number", Value: -1}}).SetSkip(page * 20).SetLimit(20)
+		opts := options.Find().SetSort(bson.D{{Key: "number", Value: -1}}).SetSkip((page - 1) * 20).SetLimit(20)
 
 		results, err := citationCollection.Find(ctx, filter, opts)
 
