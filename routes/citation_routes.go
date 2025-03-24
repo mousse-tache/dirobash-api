@@ -12,4 +12,5 @@ func CitationRoute(router *gin.Engine) {
 	router.GET("/citation/number/:number", controllers.GetACitationByNumber())
 	router.GET("/citations", controllers.GetAllCitations())
 	router.GET("/citations/:page", controllers.GetPagedCitations())
+	router.GET("/citations/textsearch/:query", controllers.SearchCitations())
 }

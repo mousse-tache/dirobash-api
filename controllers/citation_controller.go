@@ -98,6 +98,40 @@ func GetACitationByNumber() gin.HandlerFunc {
 	}
 }
 
+func SearchCitations() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		query := c.Param("query")
+		var citations []models.Citation
+		defer cancel()
+
+		filter := bson.D{{"text", primitive.Regex{Pattern: query, Options: ""}}}
+		opts := options.Find().SetSort(bson.D{{"number", -1}})
+
+		results, err := citationCollection.Find(ctx, filter, opts)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.CitationResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+			return
+		}
+
+		//reading from the db in an optimal way
+		defer results.Close(ctx)
+		for results.Next(ctx) {
+			var singleCitation models.Citation
+			if err = results.Decode(&singleCitation); err != nil {
+				c.JSON(http.StatusInternalServerError, responses.CitationResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+			}
+
+			citations = append(citations, singleCitation)
+		}
+
+		c.JSON(http.StatusOK,
+			responses.CitationResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": citations}},
+		)
+	}
+}
+
 func GetAllCitations() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
